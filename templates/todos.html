@@ -1,0 +1,170 @@
+
+{% extends "layouts/layout.html" %}
+
+<!--pour ajouter notre title dans le head de notre layout-->
+{% block title %}
+ liste des todos 
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="form-container">
+    <h2>Ajouter une Todo</h2>
+    <form class="post_todo">
+      <label for="todo-name">Nom de la Todo :</label>
+      <input type="text" id="todo-name" name="todo-name" required />
+      <label for="todo-description">Description de la Todo :</label>
+      <textarea
+        id="todo-description"
+        name="todo-description"
+        required
+      ></textarea>
+      <label for="todo-status">Statut de la Todo :</label>
+      <input type="checkbox" id="todo-status" name="todo-status" />
+      <button type="submit">Enregistrer</button>
+    </form>
+  </div>
+  <div class="todo-list-container">
+    <h2>Liste des Todos</h2>
+    <div class="todo-list">
+      {% for todo in todos %}
+      <div class="todo-card">
+        
+        <h3>{{todo.title}}</h3>
+        <p>{{todo.due}}</p>
+        <p>{{todo.description}}</p>
+        <div>
+          {% if todo['status'] == 0 %}
+          <div class="status in-progress">En cours</div>
+          {% else %}
+          <div class="status completed">Terminé</div>
+          {% endif %}
+        </div>
+        <button type="button" onclick="openModal({{todo}})"> Modifier</button>
+        <button type="button" onclick="openModalDel({{todo}})">Supprimer</button>
+      </div>
+      {% endfor %}
+      <!-- Ajouter d'autres Todos ici -->
+    </div>
+  </div>
+</div>
+<!-- modal de modification -->
+<div class="modal_modifier modal" >
+  <div>
+    <h2> modifier de toto</h2>
+    <div onclick="closeModal()" class="close-modal">x</div>
+  </div>
+  <form id="update-form">
+    <input type="hidden" name="id-todo" id="update-id">
+    <label for="update-title">Nom de la Todo :</label>
+    <input type="text" id="update-title" name="todo-name" required />
+    <label for="update-description">Description de la Todo :</label>
+    <textarea id="update-description" name="todo-description" required></textarea>
+    <label for="update-status">Statut de la Todo :</label>
+    <input type="checkbox" id="update-status" name="todo-status" />
+    <button type="submit">Modifier</button>
+  </form>
+  
+</div>
+
+<!-- modal de suppression -->
+<div class="modal_supprimer modal" >
+  <div>
+    <h2> suppression de tâche</h2>
+    <div onclick="closeModalDel()" class="close-modal">x</div>
+  </div>
+    <input type="hidden" name="id-todo" id="delete-id">
+    <p>Voulez-vous vraiment Supprimer cette tâche ?</p>
+    <button onclick="deleteTodo()">Supprimer</button>
+    <button onclick="closeModalDel()">Annuler</button>
+  
+</div>
+
+{% endblock %}
+ {% block script %}
+<script>
+  let form = document.getElementsByClassName("post_todo")[0];
+  let updateForm = document.getElementById("update-form");
+  // let deleteForm = document.getElementById("delete-form");
+  // deleteForm.addEventListener("submit", deleteTodo);
+  updateForm.addEventListener("submit", updateTodo);
+  form.addEventListener("submit", save_todo);
+
+  function save_todo(event) {
+    event.preventDefault();
+
+    let title = document.getElementById("todo-name").value;
+    let description = document.getElementById("todo-description").value;
+    let status = 0;
+    let due = "2023-05-15";
+    let data = { title, description, status, due };
+    console.log(data);
+    fetchHelper("/todos", "POST", data);
+  }
+
+  function updateTodo(event) {
+    event.preventDefault();
+    let title = document.getElementById("update-title").value;
+    let description = document.getElementById("update-description").value;
+    let status = (document.getElementById("update-status").value)
+    let id = document.getElementById("update-id").value;
+    let due = "2023-05-15";
+    let data = { title, description, status, id,due };
+    console.log(data);
+    console.log(id);
+    fetchHelper("/todos", "PUT", data);
+  }
+
+  function deleteTodo () {
+    //event.preventDefault();
+    let id = document.getElementById("delete-id").value;
+    let data = {id};
+    console.log(data);
+    fetchHelper("/todos", "DELETE", data);
+  }
+
+  let modal = document.getElementsByClassName("modal_modifier")[0];
+
+  function openModal(todo) {
+    console.log(todo);
+    modal.style.display = "block";
+    document.getElementById("update-title").value = todo.title;
+    document.getElementById("update-description").value = todo.description;
+    document.getElementById("update-status").value = todo.status;
+    console.log(todo.status);
+    document.getElementById("update-id").value = todo.id;
+    
+  }
+  
+  let modalDel = document.getElementsByClassName("modal_supprimer")[0];
+  function openModalDel(todo) {
+    console.log(todo);
+    modalDel.style.display = "block";
+    document.getElementById("delete-id").value = todo.id;
+  }
+
+  function closeModalDel(){
+    modalDel.style.display = "none";
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+  }
+
+  function fetchHelper(url, method, data) {
+    fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        location.href = '/todos';
+      });
+  }
+</script>
+{% endblock %}

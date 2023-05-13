@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}ma merveilleuse app{% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="assets/style.css">
+    </head>
+    
+    <body>
+        <nav>
+            <div class="navbar">
+              <a href="#" class="logo">flask-training</a>
+              <ul class="nav-menu">
+                <li><a href="/" class="active">Accueil</a></li>
+                <li><a href="/todos">Todos</a></li>
+                <li><a href="/about">À propos</a></li>
+                <li><a href="/login">Connexion</a></li>
+              </ul>
+              <div class="toggle" onclick="toggleMenu()"></div>
+            </div>
+          </nav>
+        <main class="container">
+            {%block content%}
+
+            {%endblock%}
+        </main>
+        <script src="" async defer>
+            function toggleMenu() {
+                var menu = document.querySelector('.nav-menu');
+                var toggle = document.querySelector('.toggle');
+                menu.classList.toggle('menu-active');
+                toggle.classList.toggle('menu-active');
+              }
+        </script>
+        {%block script%}
+
+        
+        {%endblock%}
+    </body>
+</html>
